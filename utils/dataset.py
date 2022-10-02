@@ -1,3 +1,4 @@
+import os
 from os.path import splitext
 from os import listdir
 import numpy as np
@@ -6,6 +7,22 @@ import torch
 from torch.utils.data import Dataset
 import logging
 from PIL import Image
+
+
+class BasicDatasetV2(Dataset):
+
+    def __init__(self, imgs_dir, masks_dir, scale=1, mask_suffix=''):
+        self.imgs_dir = imgs_dir
+        self.mask_dir = masks_dir
+
+        self.ids = [f.split('_') for f in listdir(imgs_dir)
+                    if not f.startswith('.')]
+        logging.info(f'Creating dataset with {len(self.ids)} examples')
+
+    def __len__(self):
+        return len(self.ids)
+
+    # def
 
 
 class BasicDataset(Dataset):
@@ -17,8 +34,8 @@ class BasicDataset(Dataset):
         # self.dic = np.array(7,4)
         assert 0 < scale <= 1, 'Scale must be between 0 and 1'
 
-        self.ids = [splitext(file)[0] for file in listdir(imgs_dir)
-                    if not file.startswith('.')]
+        self.ids = [f.split('_')[0] for f in listdir(imgs_dir)
+                    if not f.startswith('.')]
         logging.info(f'Creating dataset with {len(self.ids)} examples')
 
     def __len__(self):
@@ -59,13 +76,13 @@ class BasicDataset(Dataset):
         return img_trans
 
     def RGB_2_class_idx(cls, mask_to_be_converted):
-        mapping = {(0  , 255, 255): 0,     #urban_land
-                   (255, 255, 0  ): 1,    #agriculture
-                   (255, 0  , 255): 2,    #rangeland
-                   (0  , 255, 0  ): 3,      #forest_land
-                   (0  , 0  , 255): 4,      #water
-                   (255, 255, 255):5,     #barren_land
-                   (0  , 0  , 0  ):6}           #unknown
+        mapping = {(0, 255, 255): 0,  # urban_land
+                   (255, 255, 0): 1,  # agriculture
+                   (255, 0, 255): 2,  # rangeland
+                   (0, 255, 0): 3,  # forest_land
+                   (0, 0, 255): 4,  # water
+                   (255, 255, 255): 5,  # barren_land
+                   (0, 0, 0): 6}  # unknown
 
         # mapping = {(0.,1., 1.): 0,     #urban_land
         #         (1., 1., 0.): 1,    #agriculture
@@ -75,9 +92,9 @@ class BasicDataset(Dataset):
         #         (1.,1.,1.):5,     #barren_land
         #         (0.,0.,0.):6}           #unknown
         temp = np.array(mask_to_be_converted)
-        temp = np.where(temp>=128, 255, 0)
+        temp = np.where(temp >= 128, 255, 0)
 
-        class_mask=torch.from_numpy(temp)
+        class_mask = torch.from_numpy(temp)
         h, w = class_mask.shape[1], class_mask.shape[2]
         mask_out = torch.zeros(h, w, dtype=torch.long)
         for k in mapping:
@@ -87,18 +104,33 @@ class BasicDataset(Dataset):
 
         return mask_out
 
-    def __getitem__(self, i):
+    def _get_img_mask_paths(self, i):
         idx = self.ids[i]
-        idx = idx[:len(idx) - 4]
-        mask_file = glob(self.masks_dir + idx + '_mask' + '.png')
-        img_file = glob(self.imgs_dir + idx + '_sat' + '.jpg')
+        # idx = idx[:len(idx) - 4]
 
-        assert len(mask_file) == 1, \
+        mask_file = idx + '_mask' + '.png'
+        image_file = idx + '_sat' + '.jpg'
+
+        full_mask_file_path = os.path.join(self.masks_dir, mask_file)
+        assert os.path.exists(full_mask_file_path) == True, \
+            f"Mask file {full_mask_file_path} does not exist"
+
+        full_img_file_path = os.path.join(self.imgs_dir, image_file)
+        assert os.path.exists(full_img_file_path) == True, \
+            f"Image file {full_img_file_path} does not exist"
+
+        assert len(glob(full_mask_file_path)) == 1, \
             f'Either no mask or multiple masks found for the ID {idx}: {mask_file}'
-        assert len(img_file) == 1, \
-            f'Either no image or multiple images found for the ID {idx}: {img_file}'
-        mask = Image.open(mask_file[0])
-        img = Image.open(img_file[0])
+        assert len(glob(full_img_file_path)) == 1, \
+            f'Either no image or multiple images found for the ID {idx}: {image_file}'
+        return full_img_file_path, full_mask_file_path, idx
+
+    def __getitem__(self, i):
+
+        img_file, mask_file, idx = self._get_img_mask_paths(i)
+
+        mask = Image.open(mask_file)
+        img = Image.open(img_file)
 
         assert img.size == mask.size, \
             f'Image and mask {idx} should be the same size, but are {img.size} and {mask.size}'
