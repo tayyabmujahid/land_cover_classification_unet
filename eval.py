@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 
 from diceloss import dice_coef_9cat_loss
+from predict import compute_iou
 
 
 def eval_net(net, loader, device):
@@ -11,6 +12,7 @@ def eval_net(net, loader, device):
     mask_type = torch.float32 if net.n_classes == 1 else torch.long
     n_val = len(loader)  # the number of batch
     tot = 0
+    mIoU = 0
 
     with tqdm(total=n_val, desc='Validation round', unit='batch',disable = True, leave=True) as pbar:
         for batch in loader:
@@ -24,11 +26,14 @@ def eval_net(net, loader, device):
             if net.n_classes > 1:
                 tot += F.cross_entropy(mask_pred, true_masks).item()
                 # tot += dice_coef_9cat_loss(true_masks,mask_pred).item()
+                mIoU+=compute_iou(mask_pred,true_masks,net.n_classes)
 
             else:
                 pred = torch.sigmoid(mask_pred)
                 pred = (pred > 0.5).float()
-                tot += dice_coeff(pred, true_masks).item()
+                # tot += dice_coeff(pred, true_masks).item()
+
+
             pbar.update()
     net.train()
-    return tot/n_val
+    return tot/n_val, mIoU/n_val

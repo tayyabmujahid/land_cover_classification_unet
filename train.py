@@ -53,6 +53,14 @@ def train_net(net,
     writer = SummaryWriter(comment=f'LR_{lr}_BS_{batch_size}_SCALE_{img_scale}')
     global_step = 0
 
+    opt = {
+        'epochs': epochs,
+        'batch_size': batch_size,
+        'lr': lr,
+        'n_train': n_train,
+        'n_validation': n_val,
+    }
+
     logging.info(f'''Starting training:
         Epochs:          {epochs}
         Batch size:      {batch_size}
@@ -85,7 +93,7 @@ def train_net(net,
     else:
         criterion = nn.BCEWithLogitsLoss()
     run_name = generate_run_name()
-    wandb_logger = Wandblogger(name=run_name)
+    wandb_logger = Wandblogger(opt=opt, name=run_name)
 
     for epoch in range(epochs):
         net.train()
@@ -149,7 +157,7 @@ def train_net(net,
 
         # end of epoch
 
-        tags = ['train/loss', 'validation/loss']
+        tags = ['train/loss', 'validation/loss','validation/mIoU']
 
         writer.add_scalar('Loss/train', epoch_loss / n_train, epoch + 1)
 
@@ -158,7 +166,7 @@ def train_net(net,
             writer.add_histogram('weights/' + tag, value.data.cpu().numpy(), epoch + 1)
             writer.add_histogram('grads/' + tag, value.grad.data.cpu().numpy(), epoch + 1)
 
-        val_score = eval_net(net, val_loader, device)
+        val_score,mIoU = eval_net(net, val_loader, device)
 
         # if (epoch+1) % 10 == 0:
         # scheduler.step()
@@ -172,7 +180,7 @@ def train_net(net,
             logging.info('Validation Dice Coeff: {}'.format(val_score))
             writer.add_scalar('Dice/test', val_score, epoch + 1)
 
-        for x, tag in zip([mean_epoch_loss, val_score], tags):
+        for x, tag in zip([mean_epoch_loss, val_score,mIoU], tags):
             wandb_logger.log({tag: x})
         wandb_logger.end_epoch()
 
