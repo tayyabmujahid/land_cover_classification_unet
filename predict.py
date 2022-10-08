@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -14,58 +15,75 @@ from utils.dataset import BasicDataset
 import matplotlib.pyplot as plt
 import glob
 from torch.utils.data import DataLoader
+STAGED_MODEL_DIRNAME = Path(__file__).resolve().parent / "artifacts" / "land_cover_segmentation"
+MODEL_FILE = "model.pt"
 
 
-def predict_img(net,
-                full_img,
-                device,
-                scale_factor=1):
-    net.eval()
-    img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))
-    img = img.unsqueeze(0)
-    img = img.to(device=device, dtype=torch.float32)
+class LandcoverSegmentationClassifier:
 
-    with torch.no_grad():
-        output = net(img)
-        # print(output)
-        if net.n_classes > 1:
-            probs = F.softmax(output, dim=1)
+    def __int__(self, model_path=None, device='cpu'):
+        if model_path is None:
+            model_path = STAGED_MODEL_DIRNAME / MODEL_FILE
+        self.model = UNet(n_channels=3, n_classes=7)
+        if device == 'cuda':
+            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         else:
-            probs = torch.sigmoid(output)
+            self.device = torch.device(device)
+        self.init_model(model_path)
 
-        probs = probs.squeeze(0)
+    def init_model(self, model_path):
 
-        height, width = probs.shape[1], probs.shape[2]
+        logging.info("Loading model {}".format(model_path))
+        self.model.to(device=self.device)
+        self.model.load_state_dict(torch.load(model_path, map_location=self.device))
 
-        # convert probabilities to class index and then to RGB
-        mapping = {0: (0, 255, 255),        # urban_land
-                   1: (255, 255, 0),        # agriculture
-                   2: (255, 0, 255),        # rangeland
-                   3: (0, 255, 0),          # forest_land
-                   4: (0, 0, 255),          # water
-                   5: (255, 255, 255),      # barren_land
-                   6: (0, 0, 0)}            # unknown
-        class_idx = torch.argmax(probs, dim=0)
-        image = torch.zeros(height, width, 3, dtype=torch.uint8)
+    def predict_img(self, full_img, scale_factor=1, out_threshold=0.5):
+        self.model.eval()
+        img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))
+        img = img.unsqueeze(0)
+        img = img.to(device=self.device, dtype=torch.float32)
 
-        for k in mapping:
-            idx = (class_idx == torch.tensor(k, dtype=torch.uint8))
-            validx = (idx == 1)
-            image[validx, :] = torch.tensor(mapping[k], dtype=torch.uint8)
-                 
-        image = image.permute(2, 0, 1)
-        tf = transforms.Compose(
-            [
-                transforms.ToPILImage(),
-                transforms.Resize(full_img.size[1]),
-                transforms.ToTensor()
-            ]
-        )
+        with torch.no_grad():
+            output = self.model(img)
+            # print(output)
+            if self.model.n_classes > 1:
+                probs = F.softmax(output, dim=1)
+            else:
+                probs = torch.sigmoid(output)
 
-        image = image.permute(1, 2, 0)
-        image = image.squeeze().cpu().numpy()
+            probs = probs.squeeze(0)
 
-    return image, class_idx
+            height, width = probs.shape[1], probs.shape[2]
+
+            # convert probabilities to class index and then to RGB
+            mapping = {0: (0, 255, 255),        # urban_land
+                       1: (255, 255, 0),        # agriculture
+                       2: (255, 0, 255),        # rangeland
+                       3: (0, 255, 0),          # forest_land
+                       4: (0, 0, 255),          # water
+                       5: (255, 255, 255),      # barren_land
+                       6: (0, 0, 0)}            # unknown
+            class_idx = torch.argmax(probs, dim=0)
+            image = torch.zeros(height, width, 3, dtype=torch.uint8)
+
+            for k in mapping:
+                idx = (class_idx == torch.tensor(k, dtype=torch.uint8))
+                validx = (idx == 1)
+                image[validx, :] = torch.tensor(mapping[k], dtype=torch.uint8)
+
+            image = image.permute(2, 0, 1)
+            tf = transforms.Compose(
+                [
+                    transforms.ToPILImage(),
+                    transforms.Resize(full_img.size[1]),
+                    transforms.ToTensor()
+                ]
+            )
+
+            image = image.permute(1, 2, 0)
+            image = image.squeeze().cpu().numpy()
+
+        return image, class_idx
 
 
 def preprocess_mask(pil_img, scale):
@@ -176,8 +194,12 @@ def get_args():
     return parser.parse_args()
 
 
-def main():
-    args = get_args()
+def main(args):
+    """Kaggle competition inference on all images in test folder
+
+    :param args: command line input parameters
+    :return:
+    """
     in_files = args.input
 
     img_scale = args.scale
@@ -194,18 +216,21 @@ def main():
         gt_list.append(mask)
 
     gt_tensor = torch.Tensor(gt_list)
-    net = UNet(n_channels=3, n_classes=7)
-
-    logging.info("Loading model {}".format(args.model))
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')
     logging.info(f'Using device {device}')
+    # net = UNet(n_channels=3, n_classes=7)
+    #
+    # logging.info("Loading model {}".format(args.model))
+    #
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # logging.info(f'Using device {device}')
+    #
+    # net.to(device=device)
+    # net.load_state_dict(torch.load(args.model, map_location=device))
 
-    net.to(device=device)
-    net.load_state_dict(torch.load(args.model, map_location=device))
-
+    lsc = LandcoverSegmentationClassifier(args.model, device)
     logging.info("Model loaded !")
-
+    seg_array = []
     for i, fn in enumerate(in_files):
         logging.info("\nPredicting image {} ...".format(fn))
 
@@ -215,11 +240,11 @@ def main():
         name = fn.split('/')[-1]
         # Removing the file extension
         name = name.split('.')[0]
-        seg, mask_indices = predict_img(net=net,
-                                        full_img=img,
-                                        scale_factor=args.scale,
-                                        out_threshold=args.mask_threshold,
-                                        device=device)
+        seg, mask_indices = lsc.predict_img(full_img=img,
+                                            device=device,
+                                            scale_factor=args.scale,
+                                            out_threshold=args.mask_threshold,
+                                            )
 
         if i == 0:
             seg_array = mask_indices.unsqueeze(0)
@@ -238,5 +263,39 @@ def main():
     print("IoU Value:", total_IoU)
 
 
+def do_live_inference(args):
+    """Inference on a single image
+
+    :param args: command line args
+    :return:
+    """
+    print(args)
+    in_file = args.input
+
+    img_scale = args.scale
+    device = torch.device('cpu')
+    logging.info(f'Using device {device}')
+    lcs = LandcoverSegmentationClassifier(args.model, device)
+
+    img = Image.open(img_scale)
+    # Splitting input directory from the file name
+    name = in_file.split('/')[-1]
+    # Removing the file extension
+    name = name.split('.')[0]
+    seg, mask_indices = lcs.predict_img(full_img=img,
+                                        scale_factor=args.scale,
+                                        out_threshold=args.mask_threshold,
+                                        device=device
+                                        )
+    if args.viz:
+        im = Image.fromarray(seg)
+        im.save(str(args.output[0]) + 'pred_' + name + '.jpeg')
+
+
 if __name__ == "__main__":
-    main()
+    in_args = get_args()
+    if in_args.challenge:
+        main(in_args)
+    else:
+        do_live_inference(in_args)
+
