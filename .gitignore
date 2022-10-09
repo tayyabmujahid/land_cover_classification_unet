@@ -10,3 +10,7 @@ README.md
 submit.py
 .ipynb_checkpoints/*
 .idea/*
+utils/__pycache__/*.pyc
+unet/__pycache__/*.pyc
+utils/__pycache__/data_vis.cpython-38.pyc
+utils/__pycache__/dataset.cpython-38.pyc

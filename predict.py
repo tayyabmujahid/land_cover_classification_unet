@@ -15,20 +15,21 @@ from utils.dataset import BasicDataset
 import matplotlib.pyplot as plt
 import glob
 from torch.utils.data import DataLoader
-STAGED_MODEL_DIRNAME = Path(__file__).resolve().parent / "artifacts" / "land_cover_segmentation"
-MODEL_FILE = "model.pt"
+STAGED_MODEL_DIRNAME = Path(__file__).resolve().parent / "artifacts" / "model-ckpt-epoch-90.pt:v0"
+MODEL_FILE = "UNet_epoch90.pt"
 
 
 class LandcoverSegmentationClassifier:
 
-    def __int__(self, model_path=None, device='cpu'):
+    def __init__(self,  device=None, model_path=None):
+        # for the case where entrypoint is an ui app
+        if device is None:
+            device = torch.device('cpu')
         if model_path is None:
             model_path = STAGED_MODEL_DIRNAME / MODEL_FILE
+        print(model_path)
         self.model = UNet(n_channels=3, n_classes=7)
-        if device == 'cuda':
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        else:
-            self.device = torch.device(device)
+        self.device = device
         self.init_model(model_path)
 
     def init_model(self, model_path):
@@ -190,6 +191,9 @@ def get_args():
     parser.add_argument('--scale', '-s', type=float,
                         help="Scale factor for the input images",
                         default=1)
+    parser.add_argument('--challenge', '-c',
+                        help="run the prediction on all images for challenge output",
+                        action='store_true')
 
     return parser.parse_args()
 
@@ -228,7 +232,7 @@ def main(args):
     # net.to(device=device)
     # net.load_state_dict(torch.load(args.model, map_location=device))
 
-    lsc = LandcoverSegmentationClassifier(args.model, device)
+    lsc = LandcoverSegmentationClassifier(args.model)
     logging.info("Model loaded !")
     seg_array = []
     for i, fn in enumerate(in_files):
@@ -271,15 +275,15 @@ def do_live_inference(args):
     """
     print(args)
     in_file = args.input
-
-    img_scale = args.scale
     device = torch.device('cpu')
+    print(type(device))
     logging.info(f'Using device {device}')
+    print(f'Using device {device}')
     lcs = LandcoverSegmentationClassifier(args.model, device)
 
-    img = Image.open(img_scale)
+    img = Image.open(in_file[0])
     # Splitting input directory from the file name
-    name = in_file.split('/')[-1]
+    name = in_file[0].split('/')[-1]
     # Removing the file extension
     name = name.split('.')[0]
     seg, mask_indices = lcs.predict_img(full_img=img,
