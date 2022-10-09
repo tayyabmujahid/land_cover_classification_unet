@@ -110,3 +110,17 @@ Making a prediction on the full test set dataset using 30 epoch model trained on
 
 __Note__: currently only the ``/workspace`` folder is mapped out from the container
 
+
+## gradio app 
+The gradio demo app is run from the ui_app.py cli.  It creates a very simple ui locally
+that can be shared remotely with others out of the box, if you pass --share True as a parameter.
+The app currently loads a model from a local file located in artifacts.  This is currently the model 
+with the lowest validation loss.  It was downloaded as is from the W&B project runs artifact store.  
+Use the model manager script to download another model - converting the model to torchscript is not yet supported.
+Extend the model_manager script if you want to implement that.  To download another model, make sure you know it's path.
+The app automatically exposes some example images - currently points to the data/test_img_subset folder.
+To run the gradio app:
+`python ui_app.py --share True` that is if you want to share it externally otherwise `python ui_app.py`
+In the UI, for best results, the scale parameter should be set to the same as what the model was trained on.
+
+

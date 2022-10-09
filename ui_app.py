@@ -9,6 +9,7 @@ from typing import Callable
 import gradio as gr
 from PIL import ImageStat
 from PIL.Image import Image
+from PIL import Image as PILIMAGE
 import requests
 
 from predict import LandcoverSegmentationClassifier
@@ -36,7 +37,7 @@ def main(args):
     frontend.launch(
         server_name="0.0.0.0",  # make server accessible, binding all interfaces  # noqa: S104
         server_port=args.port,  # set a port to bind to, failing if unavailable
-        share=False,  # should we create a (temporary) public link on https://gradio.app?
+        share=args.share,  # should we create a (temporary) public link on https://gradio.app?
         favicon_path=FAVICON,  # what icon should we display in the address bar?
     )
 
@@ -49,10 +50,8 @@ def make_frontend(
     print(examples_dir)
     example_fnames = [f for f in os.listdir(examples_dir) if f.endswith(".jpg")]
     example_paths = [examples_dir / fname for fname in example_fnames]
-    print(example_paths)
     examples = [[str(path)] for path in example_paths]
-    print("EXAMPLES*****")
-    print(examples)
+
     allow_flagging = "never"
     readme = "This landcover segmentation prototype is based on previous work by" \
              " Srimannarayana Baratam and Georgios Apostolides as a part of their coursework for " \
@@ -110,7 +109,9 @@ class PredictorBackend:
             "image_area": image.size[0] * image.size[1],
             "pred_length": len(pred),
         }
-        return pred, metrics
+        print(type(pred[0]))
+        seg_img = PILIMAGE.fromarray(pred[0])
+        return seg_img, metrics
 
     def _predict_from_endpoint(self, image, scale):
         """Send an image to an endpoint that accepts JSON and return the predicted text.
@@ -161,6 +162,12 @@ def _make_parser():
         default=DEFAULT_PORT,
         type=int,
         help=f"Port on which to expose this server. Default is {DEFAULT_PORT}.",
+    )
+    parser.add_argument(
+        "--share",
+        default=False,
+        type=bool,
+        help=f"share the app externally with others?",
     )
 
     return parser

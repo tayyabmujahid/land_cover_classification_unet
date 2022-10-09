@@ -291,9 +291,9 @@ def do_live_inference(args):
                                         out_threshold=args.mask_threshold,
                                         device=device
                                         )
-    if args.viz:
-        im = Image.fromarray(seg)
-        im.save(str(args.output[0]) + 'pred_' + name + '.jpeg')
+    im = Image.fromarray(seg)
+    # im.save(str(args.output[0]) + 'pred_' + name + '.jpeg')
+    return im
 
 
 if __name__ == "__main__":
