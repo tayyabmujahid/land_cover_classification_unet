@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import Callable
 
+from PIL import Image as pimg
 import gradio as gr
 from PIL import ImageStat
 from PIL.Image import Image
@@ -27,7 +28,7 @@ APP_DIR = Path(__file__).resolve().parent  # what is the directory for this appl
 FAVICON = APP_DIR / "ui/1f95e.png"  # path to a small image for display in browser tab and social media
 
 DEFAULT_PORT = 11700
-
+LEGEND_KEYS = '/home/littlefoot/src/lcs_http/land_cover_classification_unet/ui/legend_landcover.png'
 
 def main(args):
     predictor = PredictorBackend(url=args.model_url)
@@ -53,21 +54,27 @@ def make_frontend(
     examples = [[str(path)] for path in example_paths]
 
     allow_flagging = "never"
-    readme = "This landcover segmentation prototype is based on previous work by" \
-             " Srimannarayana Baratam and Georgios Apostolides as a part of their coursework for " \
-             "Computer Vision by Deep Learning (CS4245) offered at TU Delft. " \
-             "The implementation of the code was done using PyTorch, it uses U-net architecture " \
-             "to perform multi-class semantic segmentation. Our contribution has been to debug the model," \
-             "train it, integrate the training with W&B and deploy it as an app."
+    readme = "The aim of this project was to select a suitable existing model architecture, get it running, " \
+             "potentially make some improvements to it and deploy it to a web app." \
+             "The model was trained on the deepglobe landcover segmentation dataset available from " \
+             "https://www.kaggle.com/datasets/geoap96/deepglobe2018-landcover-segmentation-traindataset." \
+             "\n This landcover segmentation demo is based on previous work from this repo " \
+             "https://github.com/TarunKumar1995-glitch/land_cover_classification_unet " \
+             "\nThe segmentation code is implemented using PyTorch, the model is based on the U-net architecture " \
+             "to perform multi-class semantic segmentation." \
+             ""
     # build a basic browser interface to a Python function
     frontend = gr.Interface(
         fn=fn,
-        outputs=gr.components.Image(type="pil", label="Landcover Prediction"),
+        outputs=[gr.components.Image(type="pil", label="Landcover Prediction"),
+                 gr.components.Image(type="pil", label="Landcover Keys", shape=(255, 255))],
         inputs=[gr.components.Image(type="pil", label="Land cover image"),
                 gr.Number(value=0.3, interactive=True)],
-        title="📝FSDL 2022 Group Project: Landcover Segmentation",  # what should we display at the top of the page?
+        title="📝FSDL 2022 Group 51 Project: Landcover Segmentation",  # what should we display at the top of the page?
         thumbnail=FAVICON,  # what should we display when the link is shared, e.g. on social media?
-        description="A prototype landcover segmentation app.",  # what should we display just above the interface?
+        description="This app serves as a demo for a Multi-class segmentation model to detect and "
+                    "segment 7 land cover classes.  The model was trained on deep globe challenge 2018 "
+                    "landcover segmentation data.",  # what should we display just above the interface?
         article=readme,  # what long-form content should we display below the interface?
         examples=examples,  # which potential inputs should we provide?
         cache_examples=False,  # should we cache those inputs for faster inference? slows down start
@@ -96,7 +103,8 @@ class PredictorBackend:
     def run(self, image, scale):
         pred, metrics = self._predict_with_metrics(image, scale)
         self._log_inference(pred, metrics)
-        return pred
+        keys = pimg.open(LEGEND_KEYS)
+        return pred, keys
 
     def _predict_with_metrics(self, image, scale):
         pred = self._predict(image, scale_factor=scale)
