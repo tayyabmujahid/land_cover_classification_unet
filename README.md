@@ -1,6 +1,6 @@
 ﻿# Full Stack Satellite Image Land Cover Segmentation using U-net 
  
-This GitHub repository is developed by [Suzi](https://github.com/suzifoobar), [Roland Ritt](https://github.com/RolandRitt) and [https://github.com/tayyabmujahid](https://github.com/tayyabmujahid) during the project for the [Full Stack Deep Learning](https://fullstackdeeplearning.com/course/2022/).
+This GitHub repository is developed by [Suzi](https://github.com/suzifoobar), [Roland Ritt](https://github.com/RolandRitt) and [https://github.com/tayyabmujahid](https://github.com/tayyabmujahid) during the project for the [Full Stack Deep Learning 2022 course](https://fullstackdeeplearning.com/course/2022/).
 The implementation of the code was done using PyTorch, it uses U-net architecture to perform multi-class semantic segmentation. The project was derived from an existing code base which can be found [[here]](https://github.com/TarunKumar1995-glitch/land_cover_classification_unet).
 A well articulated blog is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b) for the project by the authors.
 
