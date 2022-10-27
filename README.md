@@ -4,6 +4,10 @@ This GitHub repository is developed by [Suzi](https://github.com/suzifoobar), [R
 The implementation of the code was done using PyTorch, it uses U-net architecture to perform multi-class semantic segmentation. The project was derived from an existing code base which can be found [[here]](https://github.com/TarunKumar1995-glitch/land_cover_classification_unet).
 A well articulated blog is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b) for the project by the authors.
 
+A Weights&Biases report can be found [[here]](https://wandb.ai/fsdl2022_project051/land_cover_segmentation/reports/Landcover-Segmentation-Initial-Investigation--VmlldzoyNzc3NjU5?accessToken=dsrk26mv9pez0aapb2mlsxg0g3436eox9z2id3tksnjuikd723bmspvd2vgpblfe)
+
+The project presentation can be found [[here]](https://docs.google.com/presentation/d/1TDif9r3uiCZ04yxBxgruh5jySDqJFwEYxoMSaM8LB-U/edit?usp=sharing)
+
 ## Google Colab Wrapper
 For testing the repository, a google colab wrapper is also provided which explains in detail how to execute the code along with insights. Just download the "colab_wrapper.ipynb" file from the repository and open in your colab. Instructions are available there to clone this repository directly to your drive and train using GPU runtime.
 
