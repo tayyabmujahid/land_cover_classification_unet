@@ -1,6 +1,8 @@
-﻿# Satellite Image Land Cover Segmentation using U-net 
-
-This GitHub repository is developed by Srimannarayana Baratam and Georgios Apostolides as a part of Computer Vision by Deep Learning (CS4245) course offered at TU Delft. The implementation of the code was done using PyTorch, it uses U-net architecture to perform multi-class semantic segmentation.  The repository from which our implementation has been derived can be found [[here]](https://github.com/milesial/Pytorch-UNet). A well articulated blog is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b) for the project by the authors of this repository.
+﻿# Full Stack Satellite Image Land Cover Segmentation using U-net 
+ 
+This GitHub repository is developed by [Suzi](https://github.com/suzifoobar), [Roland Ritt](https://github.com/RolandRitt) and [https://github.com/tayyabmujahid](https://github.com/tayyabmujahid) during the project for the [Full Stack Deep Learning](https://fullstackdeeplearning.com/course/2022/).
+The implementation of the code was done using PyTorch, it uses U-net architecture to perform multi-class semantic segmentation. The project was derived from an existing code base which can be found [[here]](https://github.com/TarunKumar1995-glitch/land_cover_classification_unet).
+A well articulated blog is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b) for the project by the authors.
 
 ## Google Colab Wrapper
 For testing the repository, a google colab wrapper is also provided which explains in detail how to execute the code along with insights. Just download the "colab_wrapper.ipynb" file from the repository and open in your colab. Instructions are available there to clone this repository directly to your drive and train using GPU runtime.
