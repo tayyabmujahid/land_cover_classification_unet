@@ -1,6 +1,8 @@
-﻿# Satellite Image Land Cover Segmentation using U-net 
-
-This GitHub repository is developed by Srimannarayana Baratam and Georgios Apostolides as a part of Computer Vision by Deep Learning (CS4245) course offered at TU Delft. The implementation of the code was done using PyTorch, it uses U-net architecture to perform multi-class semantic segmentation.  The repository from which our implementation has been derived can be found [[here]](https://github.com/milesial/Pytorch-UNet). A well articulated blog is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b) for the project by the authors of this repository.
+﻿# Full Stack Satellite Image Land Cover Segmentation using U-net 
+ 
+This GitHub repository is developed by [Suzi](https://github.com/suzifoobar), [Roland Ritt](https://github.com/RolandRitt) and [https://github.com/tayyabmujahid](https://github.com/tayyabmujahid) during the project for the [Full Stack Deep Learning 2022 course](https://fullstackdeeplearning.com/course/2022/).
+The implementation of the code was done using PyTorch, it uses U-net architecture to perform multi-class semantic segmentation. The project was derived from an existing code base which can be found [[here]](https://github.com/TarunKumar1995-glitch/land_cover_classification_unet).
+A well articulated blog is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b) for the project by the authors.
 
 ## Google Colab Wrapper
 For testing the repository, a google colab wrapper is also provided which explains in detail how to execute the code along with insights. Just download the "colab_wrapper.ipynb" file from the repository and open in your colab. Instructions are available there to clone this repository directly to your drive and train using GPU runtime.
@@ -109,4 +111,18 @@ Making a prediction on the full test set dataset using 30 epoch model trained on
    Where ``-m`` and `-i` define the path to the masks and images within the container. Most of the time this should point to the mapped data folder
 
 __Note__: currently only the ``/workspace`` folder is mapped out from the container
+
+
+## gradio app 
+The gradio demo app is run from the ui_app.py cli.  It creates a very simple ui locally
+that can be shared remotely with others out of the box, if you pass --share True as a parameter.
+The app currently loads a model from a local file located in artifacts.  This is currently the model 
+with the lowest validation loss.  It was downloaded as is from the W&B project runs artifact store.  
+Use the model manager script to download another model - converting the model to torchscript is not yet supported.
+Extend the model_manager script if you want to implement that.  To download another model, make sure you know it's path.
+The app automatically exposes some example images - currently points to the data/test_img_subset folder.
+To run the gradio app:
+`python ui_app.py --share True` that is if you want to share it externally otherwise `python ui_app.py`
+In the UI, for best results, the scale parameter should be set to the same as what the model was trained on.
+
 
