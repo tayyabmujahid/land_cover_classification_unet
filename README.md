@@ -1,22 +1,23 @@
 ﻿# Full Stack Satellite Image Land Cover Segmentation using U-net 
  
-This GitHub repository is developed by [Suzi](https://github.com/suzifoobar), [Roland Ritt](https://github.com/RolandRitt) and [https://github.com/tayyabmujahid](https://github.com/tayyabmujahid) during the project for the [Full Stack Deep Learning 2022 course](https://fullstackdeeplearning.com/course/2022/).
-The implementation of the code was done using PyTorch, it uses U-net architecture to perform multi-class semantic segmentation. The project was derived from an existing code base which can be found [[here]](https://github.com/TarunKumar1995-glitch/land_cover_classification_unet).
-A well articulated blog is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b) for the project by the authors.
+This GitHub repository is a fork from [[here]](https://github.com/TarunKumar1995-glitch/land_cover_classification_unet). Modifications to the code were made by [Suzi](https://github.com/suzifoobar), [Roland Ritt](https://github.com/RolandRitt) and [https://github.com/tayyabmujahid](https://github.com/tayyabmujahid) during the project for the [Full Stack Deep Learning 2022 course](https://fullstackdeeplearning.com/course/2022/).
+
+This is a PyTorch implementation of the U-net architecture to perform multi-class semantic segmentation. The project was derived from the above mentioned codebase. A well articulated blog of the project by the authors is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b).
 
 A Weights&Biases report can be found [[here]](https://wandb.ai/fsdl2022_project051/land_cover_segmentation/reports/Landcover-Segmentation-Initial-Investigation--VmlldzoyNzc3NjU5?accessToken=dsrk26mv9pez0aapb2mlsxg0g3436eox9z2id3tksnjuikd723bmspvd2vgpblfe)
 
 The project presentation can be found [[here]](https://docs.google.com/presentation/d/1TDif9r3uiCZ04yxBxgruh5jySDqJFwEYxoMSaM8LB-U/edit?usp=sharing)
 
 ## Google Colab Wrapper
-For testing the repository, a google colab wrapper is also provided which explains in detail how to execute the code along with insights. Just download the "colab_wrapper.ipynb" file from the repository and open in your colab. Instructions are available there to clone this repository directly to your drive and train using GPU runtime.
+For testing the repository, the original google colab wrapper explains in detail how to execute the code along with insights. Just download the "colab_wrapper.ipynb" file from the repository and open in your colab. Instructions are available there to clone this repository directly to your drive and train using GPU runtime.
+
+**As much of the details of the training data and running instructions remain the same, we have included them here. **
+
 
 ## Dataset
-The dataset we used is taken from the DeepGlobe Challenge of Land Cover Segmentation in 2018. [[DeepGlobeChallenges]](http://deepglobe.org/challenge.html)  However, the server for the challenge is no longer available for submission and evaluation of solutions. [[DeepGlobe2018 Server]](https://competitions.codalab.org/competitions/18468) and the validation and test set are not accompanied by labels. For this reason we are using **only the training set**  of the challenge and we are further splitting it into validation and test set to be able to evaluate our solution.  The original dataset can be downloaded from Kaggle [[DeepGLobe2018 Original Dataset]](https://www.kaggle.com/balraj98/deepglobe-land-cover-classification-dataset) here and the dataset we use can be downloaded from [[Link]](https://www.kaggle.com/geoap96/deepglobe2018-landcover-segmentation-traindataset) separated into the training/validation and test set we used for our model.
+The dataset used are from the DeepGlobe Challenge of Land Cover Segmentation in 2018. [[DeepGlobeChallenges]](http://deepglobe.org/challenge.html). [[DeepGlobe2018 Server]](https://competitions.codalab.org/competitions/18468) and the validation and test set are not accompanied by labels. For this reason **only the training set**  of the challenge was used.  The original dataset can be downloaded from Kaggle [[DeepGLobe2018 Original Dataset]](https://www.kaggle.com/balraj98/deepglobe-land-cover-classification-dataset) here and the dataset we use can be downloaded from [[Link]](https://www.kaggle.com/geoap96/deepglobe2018-landcover-segmentation-traindataset) separated into the training/validation and test set used for the model.
 
-## Files Explanation
-In this section we will present the different files inside the repository as well as an explanation about their functionality
-
+## Files 
 
 |File Name| Explanation / Function |
 |---------|------------|
@@ -59,7 +60,6 @@ Training the model for 100 epochs using 20% of the data as a validation split, l
 `--viz:` Saves the predictions in the form of an image. \
 (For best results used the same scale you used for training the model)
 
-_Note:_ Inference of scale 0.2 takes approximately 10 minutes.
 
 <ins>_Example_<ins>
 
