@@ -11,7 +11,7 @@ The project presentation can be found [[here]](https://docs.google.com/presentat
 ## Google Colab Wrapper
 For testing the repository, the original google colab wrapper explains in detail how to execute the code along with insights. Just download the "colab_wrapper.ipynb" file from the repository and open in your colab. Instructions are available there to clone this repository directly to your drive and train using GPU runtime.
 
-**As much of the details of the training data and running instructions remain the same, we have included them here. **
+**As much of the details of the training data and running instructions remain the same, the original Readme is included here for convenience.  Small alterations exist please refer back to the original repo if you find that anything is broken **
 
 
 ## Dataset
