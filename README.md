@@ -2,7 +2,7 @@
  
 This GitHub repository is a fork from [[here]](https://github.com/TarunKumar1995-glitch/land_cover_classification_unet). Modifications to the code were made by [Suzi](https://github.com/suzifoobar), [Roland Ritt](https://github.com/RolandRitt) and [https://github.com/tayyabmujahid](https://github.com/tayyabmujahid) during the project for the [Full Stack Deep Learning 2022 course](https://fullstackdeeplearning.com/course/2022/).
 
-This is a PyTorch implementation of the U-net architecture to perform multi-class semantic segmentation. The project was derived from the above mentioned codebase. A well articulated blog of the project by the authors is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b).
+This is a PyTorch implementation of the U-net architecture to perform multi-class semantic segmentation. The project was derived from the above mentioned codebase. A well articulated blog of the original project by the authors is also available [[here]](https://baratam-tarunkumar.medium.com/land-cover-classification-with-u-net-aa618ea64a1b).
 
 A Weights&Biases report can be found [[here]](https://wandb.ai/fsdl2022_project051/land_cover_segmentation/reports/Landcover-Segmentation-Initial-Investigation--VmlldzoyNzc3NjU5?accessToken=dsrk26mv9pez0aapb2mlsxg0g3436eox9z2id3tksnjuikd723bmspvd2vgpblfe)
 
